@@ -1,0 +1,11 @@
+# Bang mapping ten method thu cong (dot 3 — task 1)
+# Dinh dang: TenVB,TenCSharp  (khong phan biet hoa thuong; hau to Async tu bo)
+# Dung cho method bi DOI TEN khi migrate — tool khong the tu map theo ten.
+SearchProductByName,FindProducts
+# Dot 10: method vua DOI TEN vua TACH lam 2 (PurgeOrdersAsync + PurgeOrders o 2 folder)
+# — mapping tro ve khoa ten moi, tool tu gom cac ban trung khoa vao muc lien quan.
+ArchiveOldOrders,PurgeOrders
+# Dot 11: method VB chua 2 logic bi TACH thanh 2 method TEN KHAC HOAN TOAN (1-n):
+# cot 2 = method C# CHINH (ghep cap cham diem), cot 3+ = cac MANH TACH
+# (thanh EXTRA co ghi chu "manh tach" va duoc gom vao muc METHOD LIEN QUAN).
+CloseCustomerAccount,DeactivateCustomer,CancelPendingOrders

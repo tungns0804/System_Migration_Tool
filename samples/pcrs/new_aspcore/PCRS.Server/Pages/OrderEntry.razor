@@ -1,0 +1,21 @@
+@* OrderEntry.razor — man hinh nhap don hang (he thong moi — Blazor Server) *@
+@page "/order-entry"
+@inject IMediator Mediator
+
+<h3>受注入力</h3>
+
+<button @onclick="OnF8Click">F8 登録</button>
+
+@code {
+    // Thay the OrderEntry_Load cua WinForms (VB)
+    protected override async Task OnInitializedAsync()
+    {
+        var orders = await Mediator.Send(new GetOrderListQuery(100));
+    }
+
+    // Thay the F8_Click (phim tat dang ky don) cua WinForms (VB)
+    private async Task OnF8Click()
+    {
+        var result = await Mediator.Send(new RegisterOrderCommand());
+    }
+}

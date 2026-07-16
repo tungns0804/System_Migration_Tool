@@ -1,0 +1,24 @@
+@* CustomerMaster.razor — man hinh khach hang (he thong moi — Blazor Server) *@
+@page "/customer-master"
+@inject IMediator Mediator
+
+<h3>顧客マスタ</h3>
+
+<input @bind="_customerCode" placeholder="顧客コード" />
+<button @onclick="OnSearchClick">検索</button>
+
+@code {
+    private string _customerCode = "";
+
+    // Thay the CustomerMaster_Load cua WinForms (VB) — load du lieu khi mo man hinh
+    protected override async Task OnInitializedAsync()
+    {
+        var customers = await Mediator.Send(new GetCustomerListQuery());
+        StateHasChanged();
+    }
+
+    private async Task OnSearchClick()
+    {
+        var exists = await Mediator.Send(new CheckExistCustomerQuery(_customerCode));
+    }
+}

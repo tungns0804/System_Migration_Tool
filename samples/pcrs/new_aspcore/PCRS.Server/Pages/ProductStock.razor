@@ -1,0 +1,21 @@
+@* ProductStock.razor — man hinh ton kho (he thong moi — Blazor Server) *@
+@page "/product-stock"
+@inject IMediator Mediator
+
+<h3>在庫照会</h3>
+
+<input @onchange="OnQuantityChanged" placeholder="数量" />
+
+@code {
+    // Thay the ProductStock_Load cua WinForms (VB)
+    protected override async Task OnInitializedAsync()
+    {
+        var qty = await Mediator.Send(new GetStockQuantityQuery("", ""));
+    }
+
+    // Thay the txtQuantity_TextChanged cua WinForms (VB)
+    private async Task OnQuantityChanged(ChangeEventArgs e)
+    {
+        var shortage = await Mediator.Send(new CheckStockShortageQuery("", "", 0));
+    }
+}

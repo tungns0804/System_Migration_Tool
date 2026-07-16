@@ -1,0 +1,118 @@
+{
+  "version": "1.0",
+  "updated": "2026-07-10",
+
+  "_gioi_thieu": "File rule kiem tra chat luong convert method Business Logic (VB.NET -> ASP.NET Core CQRS, theo documents/04 muc 2.6 va documents/03 muc 11). Tool doc file nay de quet; nguoi review doc de hieu tieu chi. Sua/them rule o day KHONG can sua code — dat file canh exe (thu muc rules/) hoac tro bang CLI --rules. Tat toan bo bang config.json: \"rules\": {\"enabled\": false}.",
+
+  "_cach_doc": "Moi rule khi trung se sinh ghi chu 'RULE <id>: <title>' tren dong method trong bang ket qua/Excel. Rule chi la DIEM CAN REVIEW TAY — khong tru diem C1-C5. Ngoai le duy nhat: JP-MSG (thieu message tieng Nhat = kha nang thieu nhanh check nghiep vu) se nang PASS -> WARNING.",
+
+  "_tieu_chi_C1_C5": {
+    "C1 (30d)": "Method ton tai o ca 2 he thong (khop ten / hau to Async / bang mapping thu cong)",
+    "C2 (20d)": "So luong + kieu tham so (DataTable -> List<DTO> chi canh bao)",
+    "C3 (15d)": "Kieu tra ve (Task<X> ~ X; Boolean -> Result pattern chi canh bao)",
+    "C4 (15d)": "Cau truc dieu khien: so if / vong lap / try / return / throw",
+    "C5 (20d)": "Do tuong dong logic sau chuan hoa token (>=0.75 OK, 0.5-0.75 WARN, <0.5 NG; khoan dung soft-delete, DataTable->DTO, dao thu tu cau lenh)",
+    "SQL": "SQL phia C# con cu phap Oracle (NVL/DECODE/ROWNUM/SYSDATE/DUAL/.NEXTVAL/(+)) -> toi thieu WARNING",
+    "chi_tiet": "Xem documents/03_Backend_Migration_Check_Spec.md"
+  },
+
+  "vb_patterns": [
+    {
+      "id": "VB-CINT",
+      "title": "CInt() lam tron kieu banker's rounding",
+      "pattern": "\\bCInt\\s*\\(",
+      "detail": "CInt(0.5)=0, CInt(1.5)=2 (lam tron ve so chan gan nhat). (int) va Convert.ToInt32 cua C# hanh xu khac ((int) cat cut phan thap phan). Voi tien/thue, lech 1 don vi la bug that.",
+      "advice": "Xem ben C# dung gi: (int) / Convert.ToInt32 / Math.Round. Neu can giu nguyen hanh vi VB thi phai dung Math.Round(x, MidpointRounding.ToEven) roi ep kieu."
+    },
+    {
+      "id": "VB-INTDIV",
+      "title": "Toan tu chia nguyen \\ cua VB",
+      "pattern": "[\\w\\)]\\s*\\\\\\s*[\\w\\(]",
+      "detail": "VB phan biet / (chia thuc: 7/2=3.5) va \\ (chia nguyen: 7\\2=3). C# chi co / va ket qua phu thuoc kieu du lieu — dich may moc rat de sai.",
+      "advice": "Kiem tra phep chia tuong ung ben C# co ep ve int truoc khi chia khong, va nghiep vu can chia nguyen hay chia thuc."
+    },
+    {
+      "id": "VB-IIF",
+      "title": "IIf() tinh ca 2 ve",
+      "pattern": "\\bIIf\\s*\\(",
+      "detail": "IIf(dk, a, b) cua VB LUON tinh ca a va b (co the gay loi null/side-effect o ve khong duoc chon). Toan tu ?: cua C# chi tinh ve duoc chon.",
+      "advice": "Xac nhan ve khong duoc chon co side effect / co the throw khong; hanh vi moi (?:) thuong DUNG hon nhung khac hanh vi cu."
+    },
+    {
+      "id": "VB-ONERROR",
+      "title": "On Error (nuot loi ngam)",
+      "pattern": "\\bOn\\s+Error\\b",
+      "detail": "On Error Resume Next lam moi loi bi bo qua va code chay tiep. Convert 'sach' sang try/catch hoac bo di se DOI hanh vi: cho truoc day loi van chay tiep, gio se dung/throw.",
+      "advice": "Xac nhan voi nghiep vu tung cho: loi nao duoc phep nuot, loi nao phai chan. Day la diem rui ro hanh vi cao nhat khi convert."
+    },
+    {
+      "id": "VB-ROWS0",
+      "title": "Truy cap .Rows(0) khi bang co the rong",
+      "pattern": "\\.Rows\\s*\\(\\s*0\\s*\\)",
+      "detail": "VB: bang rong -> throw exception (thuong bi catch dau do). C# EF: FirstOrDefault tra null/0 em ru -> luong loi cu bien thanh luong 'thanh cong voi gia tri rong'.",
+      "advice": "Xem ben C# xu ly truong hop khong co du lieu nhu the nao (FirstOrDefault + check null? SingleAsync throw?) va doi chieu voi hanh vi nghiep vu mong muon."
+    },
+    {
+      "id": "VB-EMPTYSTR",
+      "title": "So sanh chuoi rong (\"\" vs Nothing)",
+      "pattern": "(=|<>)\\s*\"\"",
+      "flags": "scan_with_strings",
+      "detail": "VB coi (s = \"\") la True khi s Is Nothing. C# thi \"\" == null la False. Moi cho check chuoi rong deu co nguy co doi ket qua khi gia tri la null.",
+      "advice": "Ben C# nen dung string.IsNullOrEmpty(s) thay vi s == \"\". Kiem tra cho tuong ung."
+    },
+    {
+      "id": "VB-ANDOR",
+      "title": "And/Or khong short-circuit",
+      "pattern": "\\b(And|Or)\\b",
+      "detail": "And/Or cua VB (khac AndAlso/OrElse) LUON tinh ca 2 ve. Dich sang &&/|| cua C# (short-circuit) lam ve phai co the khong duoc goi nua — khac hanh vi neu ve phai co side effect hoac can chay de validate.",
+      "advice": "Xem ve phai co goi ham/gan gia tri khong. Neu chi la so sanh thuan thi && la dung va an toan."
+    }
+  ],
+
+  "cs_patterns": [
+    {
+      "id": "CS-WAITRESULT",
+      "title": "Sync-over-async (.Result / .Wait())",
+      "pattern": "\\.(Result\\b|Wait\\s*\\(\\s*\\))",
+      "detail": "Block thread de doi task trong ASP.NET Core de gay deadlock/can kiet thread pool, dac biet khi convert code sync cua WinForms sang async.",
+      "advice": "Doi sang await. Neu method goi chua async duoc thi async hoa ca chuoi goi."
+    },
+    {
+      "id": "CS-FIREFORGET",
+      "title": "Goi async bi bo ket qua (_ = XxxAsync(...))",
+      "pattern": "_\\s*=\\s*\\w*Async\\s*\\(",
+      "detail": "Check nghiep vu goi kieu fire-and-forget se luon 'pass' vi khong ai doi/doc ket qua — mat han mot buoc kiem tra so voi ban VB.",
+      "advice": "Them await va xu ly ket qua tra ve."
+    }
+  ],
+
+  "pair_rules": {
+    "jp_message": {
+      "enabled": true,
+      "escalate_pass_to_warning": true,
+      "id": "JP-MSG",
+      "title": "Message tieng Nhat cua VB khong thay ben C#",
+      "detail": "Theo documents/04 muc 2.6: MessageBox/Throw cua VB phai thanh Result.Failure(message tieng Nhat) ben C#. Message bien mat = kha nang THIEU ca nhanh check nghiep vu (hoac quen return sau Failure). Vi la nghi van loi that nen PASS bi nang len WARNING.",
+      "max_notes_per_method": 3
+    },
+    "self_exclusion": {
+      "enabled": true,
+      "id": "SELF-EXCL",
+      "title": "Nghi thieu dieu kien loai tru chinh record",
+      "method_name_pattern": "check|exist|dup",
+      "detail": "Method check trung/ton tai ma SQL cu co <> / != (loai tru chinh minh khi update) nhung LINQ moi khong co != — update chinh record se bao trung sai."
+    },
+    "validator_split": {
+      "enabled": true,
+      "id": "VALIDATOR-SPLIT",
+      "title": "Mot phan check co the da tach sang FluentValidation",
+      "detail": "Kien truc moi (documents/04) tach check dinh dang/bat buoc nhap sang [Screen]Validators.cs chay TRUOC handler. Khi C4/C5 lech va cung thu muc co *Validators.cs, doi chieu file do truoc khi ket luan thieu logic."
+    },
+    "rownum_order": {
+      "enabled": true,
+      "id": "ROWNUM-ORDER",
+      "title": "First/Take khong co OrderBy (goc la ROWNUM)",
+      "detail": "SQL cu dung ROWNUM co the dua vao thu tu ngam cua Oracle. EF Core First/Take khong co OrderBy thi thu tu KHONG dam bao -> 'lay dong dau' thanh lay dong ngau nhien."
+    }
+  }
+}

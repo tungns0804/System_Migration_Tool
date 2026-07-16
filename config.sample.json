@@ -1,0 +1,80 @@
+{
+  "_huong_dan": "Copy file nay thanh config.json (dat canh MigrationChecker.exe hoac o goc repo) roi sua gia tri can doi. Thieu key nao thi tool dung gia tri mac dinh key do. CLI: --config <file>. Moi gia tri duoi day CHINH LA gia tri mac dinh.",
+
+  "weights": {
+    "C1": 30.0,
+    "C2": 20.0,
+    "C3": 15.0,
+    "C4": 15.0,
+    "C5": 20.0
+  },
+
+  "thresholds": {
+    "sim_ok": 0.75,
+    "sim_warn": 0.5,
+    "bag_warn": 0.8,
+    "score_pass": 85.0,
+    "score_fail": 60.0,
+    "c4_light": 2,
+    "c4_heavy": 4,
+    "c3_warn_ratio": 0.6666666666666666,
+    "c4_light_ratio": 0.7333333333333333,
+    "c4_heavy_ratio": 0.4,
+    "c5_warn_ratio": 0.6
+  },
+
+  "new_arch": {
+    "method_names": ["handle", "configure", "success", "failure", "validate"],
+    "file_patterns": [
+      "(validators?\\.cs$|dtos?\\.cs$|result\\.cs$|baseentity\\.cs$|configuration\\.cs$)|[\\\\/](dtos?|common)[\\\\/]"
+    ]
+  },
+
+  "ui_event_suffixes": [
+    "click", "load", "shown", "closing", "closed", "textchanged",
+    "selectedindexchanged", "checkedchanged", "keydown", "keyup", "keypress",
+    "validating", "validated", "cellclick", "cellvaluechanged",
+    "leave", "enter", "doubleclick"
+  ],
+
+  "sql_check": {
+    "enabled": true,
+    "oracle_patterns": {
+      "NVL(": "\\bNVL\\s*\\(",
+      "DECODE(": "\\bDECODE\\s*\\(",
+      "ROWNUM": "\\bROWNUM\\b",
+      "SYSDATE": "\\bSYSDATE\\b",
+      "FROM DUAL": "\\bFROM\\s+DUAL\\b",
+      ".NEXTVAL": "\\.\\s*NEXTVAL\\b",
+      "(+) join": "\\(\\s*\\+\\s*\\)"
+    }
+  },
+
+  "razor_scan": {
+    "enabled": true
+  },
+
+  "rules": {
+    "enabled": true,
+    "file": ""
+  },
+
+  "_excel_ghi_chu": "Dot 9 — sheet mo ta chi tiet tung method (M001, M002...) trong bao cao Excel, click ten method o sheet Detail de nhay toi. method_sheets=false de tat (he thong cuc lon). max_body_lines: so dong code toi da in ra moi phia trong sheet mo ta.",
+  "excel": {
+    "method_sheets": true,
+    "max_body_lines": 400
+  },
+
+  "_llm_ghi_chu": "Dot 6 — gate danh gia AI. api_key uu tien neu khac rong, nguoc lai doc bien moi truong ANTHROPIC_API_KEY (doi ten bien qua api_key_env). Doi token: chi can sua api_key roi luu file. CANH BAO: KHONG commit config.json chua api_key len git. cache_file rong -> llm_cache.json canh exe/config (cache theo hash noi dung method de khong goi lai API ton token khi retest). Dot 8 — provider 'auto' tu nhan dien theo key: 'AIza...' = Google AI Studio (Gemini, CO FREE TIER — lay key tai aistudio.google.com, model mac dinh gemini-2.5-flash), 'sk-ant...' = Anthropic Claude (tra phi, model mac dinh claude-sonnet-5). Model khong hop provider se tu thay bang model mac dinh cua provider.",
+  "llm": {
+    "enabled": false,
+    "provider": "auto",
+    "model": "claude-sonnet-5",
+    "api_key": "",
+    "api_key_env": "ANTHROPIC_API_KEY",
+    "cache_file": "",
+    "timeout_seconds": 60,
+    "max_retries": 2,
+    "max_output_tokens": 4096
+  }
+}

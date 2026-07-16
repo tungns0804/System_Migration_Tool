@@ -1,0 +1,23 @@
+# ===== BAO MAT — TUYET DOI KHONG COMMIT =====
+# config.json chua API key that (Claude/Gemini). Chi commit config.sample.json.
+config.json
+dist/config.json
+
+# Cache ket qua AI (sinh khi chay, co the chua noi dung code noi bo)
+llm_cache.json
+
+# ===== San pham build (tai tao bang build_exe.bat) =====
+dist/
+build/
+
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+
+# ===== File tam / bao cao xuat thu =====
+*.tmp
+~$*.xlsx
+report_*.xlsx
+report_*.json
+baseline_*.txt
