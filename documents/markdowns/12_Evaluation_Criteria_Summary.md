@@ -109,9 +109,12 @@ và [13_Master_Prompt_v6.md](13_Master_Prompt_v6.md):
   nhận định tự do của model. 2 provider tự nhận diện theo key (đợt 8):
   Anthropic Claude (`claude-sonnet-5`, trả phí) hoặc Google Gemini
   (`gemini-2.5-flash`, có free tier — key `AIza...` từ aistudio.google.com).
-- **Output**: 2 cột trong sheet Detail — "Nội dung AI đánh giá" và
+- **Output**: 3 cột trong sheet Detail — "Nội dung AI đánh giá",
   "Status AI đánh giá" (PASS/WARNING; lỗi API/mất mạng/thiếu key →
-  "AI chưa thực hiện đánh giá"). **Không sửa** điểm C1–C5, status, hay Notes.
+  "AI chưa thực hiện đánh giá") và "AI đề xuất giải pháp" (đợt 12 — chỉ tóm tắt
+  hướng sửa cho dòng AI chấm WARNING; giải thích chi tiết + code đề xuất nằm
+  trong sheet mô tả `Mxxx` của dòng đó, dòng AI sửa đánh dấu `// FIX:` và được
+  highlight). **Không sửa** điểm C1–C5, status, hay Notes.
 - **Bật/tắt & đổi token**: mục `"llm"` trong `config.json`
   (`enabled`, `model`, `api_key` — đổi token chỉ cần sửa giá trị này,
   hoặc dùng biến môi trường `ANTHROPIC_API_KEY`). Không commit config chứa key.

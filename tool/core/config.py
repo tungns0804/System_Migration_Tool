@@ -85,7 +85,9 @@ DEFAULTS = {
         "cache_file": "",            # rong -> llm_cache.json canh exe/config
         "timeout_seconds": 60,
         "max_retries": 2,
-        "max_output_tokens": 4096,
+        # dot 12: AI tra them suggestion_detail + suggestion_code (method C# day
+        # du) nen can tran output lon hon — 4096 co the lam cut JSON voi method dai
+        "max_output_tokens": 8192,
     },
 }
 

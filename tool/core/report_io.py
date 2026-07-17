@@ -51,9 +51,13 @@ def result_to_dict(result) -> dict:
                 "cs_file": c.cs.file if c.cs else None,
                 "notes": c.notes,
                 # Dot 6: lop danh gia AI (null khi chua chay) — diff_reports
-                # khong doc 2 key nay nen baseline cu van dung duoc
+                # khong doc cac key nay nen baseline cu van dung duoc
                 "ai_status": c.ai_status or None,
                 "ai_comment": c.ai_comment or None,
+                # Dot 12: AI de xuat giai phap (null khi PASS/chua chay)
+                "ai_suggestion": c.ai_suggestion or None,
+                "ai_suggestion_detail": c.ai_suggestion_detail or None,
+                "ai_suggestion_code": c.ai_suggestion_code or None,
             }
             for c in result.comparisons
         ],

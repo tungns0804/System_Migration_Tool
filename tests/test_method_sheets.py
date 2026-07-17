@@ -192,14 +192,16 @@ class TestMethodSheets(unittest.TestCase):
         Path(path).unlink()
 
     def test_detail_giu_nguyen_cot_va_dropdown(self):
-        """Khong degrade: bo cot A->R, dropdown DEV, auto-filter giu nguyen."""
+        """Khong degrade: bo cot A->S (dot 12 chen 'AI de xuat giai phap' canh
+        Status AI), dropdown DEV, auto-filter giu nguyen."""
         path = _export(_make_result())
         ws = load_workbook(path)["Detail"]
         self.assertEqual(ws.cell(row=1, column=15).value, "Notes")
         self.assertEqual(ws.cell(row=1, column=16).value, "Nội dung AI đánh giá")
         self.assertEqual(ws.cell(row=1, column=17).value, "Status AI đánh giá")
-        self.assertEqual(ws.cell(row=1, column=18).value, "Status DEV đánh giá")
-        self.assertEqual(ws.auto_filter.ref, "A1:R4")
+        self.assertEqual(ws.cell(row=1, column=18).value, "AI đề xuất giải pháp")
+        self.assertEqual(ws.cell(row=1, column=19).value, "Status DEV đánh giá")
+        self.assertEqual(ws.auto_filter.ref, "A1:S4")
         self.assertEqual(len(list(ws.data_validations.dataValidation)), 1)
         Path(path).unlink()
 

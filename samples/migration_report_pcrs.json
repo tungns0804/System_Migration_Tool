@@ -1,7 +1,7 @@
 {
-  "scanned_at": "2026-07-16 19:53:05",
-  "vb_folder": "samples/pcrs/legacy_vb",
-  "cs_folder": "samples/pcrs/new_aspcore",
+  "scanned_at": "2026-07-17 09:27:46",
+  "vb_folder": "samples\\pcrs\\legacy_vb",
+  "cs_folder": "samples\\pcrs\\new_aspcore",
   "cs_scan_folder": "samples\\pcrs\\new_aspcore\\PCRS.Application",
   "summary": {
     "PASS": 9,
@@ -24,7 +24,10 @@
         "Method viet moi o he thong C#, khong co trong ban VB (khong phai loi)"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "applymemberdiscount|OrderEntry.vb|Features\\OrderEntry\\OrderEntryCommands.cs",
@@ -43,7 +46,10 @@
         "C1: khop ten qua hau to Async ('ApplyMemberDiscount' <-> 'ApplyMemberDiscountAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "calcorderamount|OrderEntry.vb|Features\\OrderEntry\\OrderEntryQueries.cs",
@@ -55,7 +61,10 @@
       "cs_file": "Features\\OrderEntry\\OrderEntryQueries.cs",
       "notes": [],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "calcroundedprice|ProductStock.vb|Features\\ProductStock\\ProductStockQueries.cs",
@@ -70,7 +79,10 @@
         "RULE VB-INTDIV: Toan tu chia nguyen \\ cua VB — can review (chi tiet: rules/conversion_rules.json)"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "calctax|OrderEntry.vb|Features\\OrderEntry\\OrderEntryQueries.cs",
@@ -84,7 +96,10 @@
         "C3: kieu tra ve khac nhau (VB: Decimal -> C#: int)"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "cancelorder|OrderEntry.vb|Features\\OrderEntry\\OrderEntryCommands.cs",
@@ -101,7 +116,10 @@
         "C1: khop ten qua hau to Async ('CancelOrder' <-> 'CancelOrderAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "cancelpendingordersasync|-|Features\\OrderEntry\\OrderCancellationCommands.cs",
@@ -116,7 +134,10 @@
         "EXTRA (manh tach): phan logic tach ra tu method VB 'CloseCustomerAccount' theo khai bao mapping — doi chieu cung cap chinh 'DeactivateCustomerAsync'"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "checkduplicatecustomer|CustomerMaster.vb|Features\\CustomerMaster\\CustomerMasterValidators.cs",
@@ -131,7 +152,10 @@
         "C1: khop ten qua hau to Async ('CheckDuplicateCustomer' <-> 'CheckDuplicateCustomerAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "checkduplicateproductname|ProductStock.vb|Features\\ProductStock\\ProductStockQueries.cs",
@@ -147,7 +171,10 @@
         "C1: khop ten qua hau to Async ('CheckDuplicateProductName' <-> 'CheckDuplicateProductNameAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "checkexistcustomer|CustomerMaster.vb|Features\\CustomerMaster\\CustomerMasterValidators.cs",
@@ -162,7 +189,10 @@
         "C1: khop ten qua hau to Async ('CheckExistCustomer' <-> 'CheckExistCustomerAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "checkorderlimit|OrderEntry.vb|Features\\OrderEntry\\OrderEntryValidators.cs",
@@ -176,7 +206,10 @@
         "C1: khop ten qua hau to Async ('CheckOrderLimit' <-> 'CheckOrderLimitAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "checkstockshortage|ProductStock.vb|Features\\ProductStock\\ProductStockQueries.cs",
@@ -190,7 +223,10 @@
         "C1: khop ten qua hau to Async ('CheckStockShortage' <-> 'CheckStockShortageAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "customermaster_load|CustomerMaster.vb|-",
@@ -205,7 +241,10 @@
         "UI event — da tim thay OnInitializedAsync trong PCRS.Server\\Pages\\CustomerMaster.razor (frontend), da chuyen hop le"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "closecustomeraccount|CustomerMaster.vb|Features\\CustomerMaster\\CustomerDeactivationCommands.cs",
@@ -223,7 +262,10 @@
         "C1: method duoc khai bao TACH thanh nhieu method (mapping 1-n) — phan logic con lai o: 'CancelPendingOrdersAsync' (Features\\OrderEntry\\OrderCancellationCommands.cs). Xem muc METHOD LIEN QUAN trong sheet mo ta"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "deletecustomer|CustomerMaster.vb|Features\\CustomerMaster\\CustomerMasterCommands.cs",
@@ -240,7 +282,10 @@
         "C1: khop ten qua hau to Async ('DeleteCustomer' <-> 'DeleteCustomerAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "exportstockcsvasync|-|Features\\ProductStock\\ProductStockQueries.cs",
@@ -254,7 +299,10 @@
         "Method viet moi o he thong C#, khong co trong ban VB (khong phai loi)"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "f8_click|CustomerMaster.vb|-",
@@ -269,7 +317,10 @@
         "UI event — da tim thay handler 'OnF8Click' trong PCRS.Server\\Pages\\OrderEntry.razor (frontend), da chuyen hop le"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "failure|-|Common\\Models\\Result.cs",
@@ -283,7 +334,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "searchproductbyname|ProductStock.vb|Features\\ProductStock\\ProductStockQueries.cs",
@@ -299,7 +353,10 @@
         "C1: khop qua bang mapping ('SearchProductByName' -> 'FindProductsAsync') — ten bi doi khi migrate, da khai bao thu cong"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "getcustomerlist|CustomerMaster.vb|Features\\CustomerMaster\\CustomerMasterQueries.cs",
@@ -316,7 +373,10 @@
         "C1: khop ten qua hau to Async ('GetCustomerList' <-> 'GetCustomerListAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "getcustomername|CustomerMaster.vb|-",
@@ -330,7 +390,10 @@
         "Khong tim thay method tuong ung o he thong moi (C#)"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "getmonthlysales|ProductStock.vb|Features\\ProductStock\\ProductStockQueries.cs",
@@ -346,7 +409,10 @@
         "C1: khop ten qua hau to Async ('GetMonthlySales' <-> 'GetMonthlySalesAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "getorderlist|OrderEntry.vb|Features\\OrderEntry\\OrderEntryQueries.cs",
@@ -363,7 +429,10 @@
         "C1: khop ten qua hau to Async ('GetOrderList' <-> 'GetOrderListAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "getstockquantity|ProductStock.vb|Features\\ProductStock\\ProductStockQueries.cs",
@@ -378,7 +447,10 @@
         "C1: khop ten qua hau to Async ('GetStockQuantity' <-> 'GetStockQuantityAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\CustomerMaster\\CustomerDeactivationCommands.cs",
@@ -392,7 +464,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\CustomerMaster\\CustomerMasterCommands.cs",
@@ -406,7 +481,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\CustomerMaster\\CustomerMasterCommands.cs",
@@ -420,7 +498,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\CustomerMaster\\CustomerMasterCommands.cs",
@@ -434,7 +515,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\CustomerMaster\\CustomerMasterQueries.cs",
@@ -448,7 +532,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\OrderEntry\\OrderArchiveCommands.cs",
@@ -462,7 +549,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\OrderEntry\\OrderCancellationCommands.cs",
@@ -476,7 +566,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\OrderEntry\\OrderEntryCommands.cs",
@@ -490,7 +583,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\OrderEntry\\OrderEntryCommands.cs",
@@ -504,7 +600,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\OrderEntry\\OrderEntryQueries.cs",
@@ -518,7 +617,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\ProductStock\\ProductStockCommands.cs",
@@ -532,7 +634,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\ProductStock\\ProductStockQueries.cs",
@@ -546,7 +651,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "handle|-|Features\\ProductStock\\StockTransferCommands.cs",
@@ -560,7 +668,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "hasvalidcustomercodeformat|-|Features\\CustomerMaster\\CustomerMasterValidators.cs",
@@ -574,7 +685,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "orderentry_load|OrderEntry.vb|-",
@@ -589,7 +703,10 @@
         "UI event — da tim thay OnInitializedAsync trong PCRS.Server\\Pages\\OrderEntry.razor (frontend), da chuyen hop le"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "printorderreport|OrderEntry.vb|-",
@@ -603,7 +720,10 @@
         "Khong tim thay method tuong ung o he thong moi (C#)"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "productstock_load|ProductStock.vb|-",
@@ -618,7 +738,10 @@
         "UI event — da tim thay OnInitializedAsync trong PCRS.Server\\Pages\\ProductStock.razor (frontend), da chuyen hop le"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "archiveoldorders|OrderEntry.vb|Features\\OrderEntry\\OrderArchiveCommands.cs",
@@ -635,7 +758,10 @@
         "C1: khop qua bang mapping ('ArchiveOldOrders' -> 'PurgeOrdersAsync') — ten bi doi khi migrate, da khai bao thu cong"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "purgeorders|-|Services\\OrderBatchService.cs",
@@ -649,7 +775,10 @@
         "Method viet moi o he thong C#, khong co trong ban VB (khong phai loi)"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "registercustomer|CustomerMaster.vb|Features\\CustomerMaster\\CustomerMasterCommands.cs",
@@ -666,7 +795,10 @@
         "C1: khop ten qua hau to Async ('RegisterCustomer' <-> 'RegisterCustomerAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "registerorder|OrderEntry.vb|Features\\OrderEntry\\OrderEntryCommands.cs",
@@ -684,7 +816,10 @@
         "C1: khop ten qua hau to Async ('RegisterOrder' <-> 'RegisterOrderAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "success|-|Common\\Models\\Result.cs",
@@ -698,7 +833,10 @@
         "EXTRA (kien truc moi): thanh phan MediatR Handler / DTO / Result / Validator — khong ton tai ben VB theo documents/04, khong phai thua code"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "transferstock|ProductStock.vb|Features\\ProductStock\\StockTransferCommands.cs",
@@ -714,7 +852,10 @@
         "C1: khop ten qua hau to Async ('TransferStock' <-> 'TransferStockAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "transferstock|-|Services\\StockAuditService.cs",
@@ -728,7 +869,10 @@
         "Method viet moi o he thong C#, khong co trong ban VB (khong phai loi)"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "txtquantity_textchanged|OrderEntry.vb|-",
@@ -743,7 +887,10 @@
         "UI event — da tim thay handler 'OnQuantityChanged' trong PCRS.Server\\Pages\\ProductStock.razor (frontend), da chuyen hop le"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "updatecustomer|CustomerMaster.vb|Features\\CustomerMaster\\CustomerMasterCommands.cs",
@@ -760,7 +907,10 @@
         "C1: khop ten qua hau to Async ('UpdateCustomer' <-> 'UpdateCustomerAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     },
     {
       "key": "updatestock|ProductStock.vb|Features\\ProductStock\\ProductStockCommands.cs",
@@ -778,7 +928,10 @@
         "C1: khop ten qua hau to Async ('UpdateStock' <-> 'UpdateStockAsync') — quy uoc async cua C#, khong phai loi"
       ],
       "ai_status": null,
-      "ai_comment": null
+      "ai_comment": null,
+      "ai_suggestion": null,
+      "ai_suggestion_detail": null,
+      "ai_suggestion_code": null
     }
   ]
 }

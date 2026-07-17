@@ -180,7 +180,9 @@ def export_guideline_excel(xlsx_path: str) -> str:
                             "day du body ngay trong Excel). Sheet Detail co 3 cot status: Status (may cham "
                             "C1-C5) -> 'Status AI danh gia' (AI goi y — dot 6) -> 'Status DEV danh gia' "
                             "(dropdown de nguoi review chon PASS/WARNING/FAIL/MISSING/EXTRA lam ket luan "
-                            "cuoi — dot 7)."),
+                            "cuoi — dot 7). Dong AI cham WARNING co them cot 'AI de xuat giai phap' "
+                            "(tom tat huong sua — dot 12); giai thich chi tiet + code de xuat highlight "
+                            "vang nam trong sheet mo ta Mxxx cua dong do."),
     ])
     r = 10
     ws.cell(row=r, column=1, value="Thanh phan man hinh").font = _SECTION_FONT
@@ -212,7 +214,9 @@ def export_guideline_excel(xlsx_path: str) -> str:
         ("Status AI danh gia (dot 6)", "PASS/WARNING do AI cham (Claude tra phi hoac Gemini free tier — tool tu "
          "nhan dien theo key, dot 8) — lop goi y doc lap, khong anh huong diem C1-C5; "
          "'AI chua thuc hien danh gia' = chua bat llm/thieu token/loi API",
-         "Doc cot 'Noi dung AI danh gia' ben canh; bat AI: config.json muc llm (enabled + api_key — "
+         "Doc cot 'Noi dung AI danh gia' ben canh; dong WARNING doc them cot 'AI de xuat giai phap' "
+         "(tom tat huong sua — dot 12) va sheet mo ta Mxxx (giai thich chi tiet + code de xuat, dong "
+         "sua danh dau '// FIX:'). Bat AI: config.json muc llm (enabled + api_key — "
          "key AIza... lay free tai aistudio.google.com, key sk-ant... tai platform.claude.com)."),
         ("Status DEV danh gia (dot 7)", "Cot danh cho NGUOI REVIEW tu cham ket luan cuoi cung — o trong, "
          "co dropdown PASS/WARNING/FAIL/MISSING/EXTRA, tu to mau theo gia tri chon",
@@ -275,10 +279,11 @@ def export_guideline_excel(xlsx_path: str) -> str:
          "MISSING da xac nhan frontend khong tinh)."),
         ("--min-score 85", "Exit code 2 neu diem trung binh duoi nguong."),
         ("--no-detect", "Tat auto-detect Business Logic, quet toan bo folder C#."),
-        ("--llm", "Bat gate danh gia AI qua Claude API (dot 6) — them 2 cot "
-         "'Noi dung AI danh gia' / 'Status AI danh gia' vao Excel; can pip install anthropic "
-         "+ API key trong config.json (muc llm) hoac bien moi truong ANTHROPIC_API_KEY; "
-         "khong anh huong diem C1-C5 va exit code."),
+        ("--llm", "Bat gate danh gia AI qua Claude API (dot 6) — them cac cot "
+         "'Noi dung AI danh gia' / 'Status AI danh gia' / 'AI de xuat giai phap' (dot 12) vao Excel; "
+         "dong AI cham WARNING co giai thich + code de xuat trong sheet mo ta Mxxx; "
+         "can pip install anthropic + API key trong config.json (muc llm) hoac bien moi truong "
+         "ANTHROPIC_API_KEY; khong anh huong diem C1-C5 va exit code."),
     ])
     r = 16
     ws.cell(row=r, column=1, value="Exit code: 0 = dat · 1 = loi input · 2 = khong dat nguong").font = Font(bold=True)

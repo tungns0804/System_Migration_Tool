@@ -69,6 +69,12 @@ class MethodComparison:
     # Dot 6: ket qua lop danh gia AI (Claude API) — doc lap voi score/status
     ai_status: str = ""   # AI_PASS | AI_WARNING | AI_NOT_RUN | "" (chua chay)
     ai_comment: str = ""  # noi dung AI danh gia (tieng Viet)
+    # Dot 12: AI de xuat giai phap cho cho KHONG PASS (WARNING) — 3 muc do chi tiet:
+    #   overview (1-2 cau, len cot Detail) / detail (giai thich day du, sheet Mxxx)
+    #   / code (method C# sau khi sua, dong sua danh dau "// FIX:", sheet Mxxx)
+    ai_suggestion: str = ""         # tom tat huong sua (hien o sheet Detail)
+    ai_suggestion_detail: str = ""  # giai thich chi tiet (hien o sheet Mxxx)
+    ai_suggestion_code: str = ""    # code de xuat da sua (hien o sheet Mxxx, highlight)
     # Dot 11: khoa ten bo sung de gom nhom "METHOD LIEN QUAN" trong sheet mo ta
     # (khai bao tach 1-n qua mapping — ten manh tach khac han ten goc)
     related_names: list = field(default_factory=list)

@@ -46,6 +46,14 @@ _CODE_FONT = Font(name="Consolas", size=9)
 _CODE_FILL = PatternFill("solid", fgColor="F5F5F5")
 _SECTION_FILL = PatternFill("solid", fgColor="D9E1F2")
 
+# Dot 12: style muc "AI DE XUAT GIAI PHAP" trong sheet Mxxx — code de xuat
+# highlight nen vang, rieng dong duoc sua (co "// FIX") dam mau + chu do
+_SUGGEST_SECTION_FILL = PatternFill("solid", fgColor="FFD966")
+_SUGGEST_CODE_FILL = PatternFill("solid", fgColor="FFF2CC")
+_SUGGEST_FIX_FILL = PatternFill("solid", fgColor="FFE08A")
+_SUGGEST_FIX_FONT = Font(name="Consolas", size=9, bold=True, color="9C0006")
+_SUGGEST_OVERVIEW_FILL = PatternFill("solid", fgColor="FFF2CC")  # o cot Detail
+
 
 def _status_fill(status):
     bg, fg = _STATUS_STYLE.get(status, ("FFFFFF", "000000"))
@@ -130,11 +138,11 @@ def _write_info_row(ws, row, label, value):
     return row + 1
 
 
-def _write_section_header(ws, row, text):
+def _write_section_header(ws, row, text, fill=_SECTION_FILL):
     cell = ws.cell(row=row, column=1, value=text)
     cell.font = Font(bold=True, size=11)
-    cell.fill = _SECTION_FILL
-    ws.cell(row=row, column=2).fill = _SECTION_FILL
+    cell.fill = fill
+    ws.cell(row=row, column=2).fill = fill
     return row + 1
 
 
@@ -155,6 +163,55 @@ def _write_code_block(ws, row, body: str, max_lines: int) -> int:
         cell.font = Font(italic=True, color="808080")
         row += 1
     return row
+
+
+def _write_suggestion_code_block(ws, row, code: str, max_lines: int) -> int:
+    """In code AI de xuat (dot 12) — nen vang de phan biet voi source goc;
+    dong duoc AI sua (ket thuc bang '// FIX: ...') to dam + chu do."""
+    lines = (code or "").splitlines()
+    shown = lines[:max_lines]
+    for line in shown:
+        cell = ws.cell(row=row, column=2, value=line.rstrip()[:1000])
+        if "// FIX" in line:
+            cell.font = _SUGGEST_FIX_FONT
+            cell.fill = _SUGGEST_FIX_FILL
+        else:
+            cell.font = _CODE_FONT
+            cell.fill = _SUGGEST_CODE_FILL
+        row += 1
+    if len(lines) > max_lines:
+        cell = ws.cell(row=row, column=2,
+                       value=f"... (con {len(lines) - max_lines} dong)")
+        cell.font = Font(italic=True, color="808080")
+        row += 1
+    return row
+
+
+def _write_suggestion_section(ws, row, comp, max_lines) -> int:
+    """Muc 'AI DE XUAT GIAI PHAP' trong sheet Mxxx (dot 12) — chi xuat hien khi
+    AI cham WARNING va co de xuat: tom tat + giai thich chi tiet + code da sua."""
+    row = _write_section_header(
+        ws, row, "AI DE XUAT GIAI PHAP (cho dong AI cham WARNING)",
+        fill=_SUGGEST_SECTION_FILL)
+    if comp.ai_suggestion:
+        row = _write_info_row(ws, row, "Tom tat huong sua", comp.ai_suggestion)
+    if comp.ai_suggestion_detail:
+        row = _write_info_row(ws, row, "Giai thich chi tiet", comp.ai_suggestion_detail)
+    if comp.ai_suggestion_code:
+        ws.cell(row=row, column=1, value="Code de xuat").font = Font(bold=True)
+        row = _write_suggestion_code_block(ws, row, comp.ai_suggestion_code, max_lines)
+        legend = ws.cell(row=row, column=2,
+                         value="(Dong nen dam co '// FIX:' la dong AI sua/them — "
+                               "doi chieu voi SOURCE ASP.NET CORE o duoi truoc khi ap dung)")
+        legend.font = Font(italic=True, color="808080")
+        row += 1
+    else:
+        cell = ws.cell(row=row, column=2,
+                       value="(AI khong de xuat code — xem giai thich chi tiet o tren, "
+                             "can nguoi review xac nhan tay)")
+        cell.font = Font(italic=True, color="808080")
+        row += 1
+    return row + 1
 
 
 def _write_method_source(ws, row, side_label, info, absent_text, max_lines) -> int:
@@ -202,6 +259,10 @@ def _write_method_sheet(wb, no, comp, related_map, comparisons, max_lines):
     if comp.notes:
         row = _write_info_row(ws, row, "Notes", "\n".join(f"- {n}" for n in comp.notes))
     row += 1
+
+    # Dot 12: AI de xuat giai phap — chi khi AI cham WARNING va co noi dung
+    if comp.ai_suggestion or comp.ai_suggestion_detail or comp.ai_suggestion_code:
+        row = _write_suggestion_section(ws, row, comp, max_lines)
 
     # 2 muc source — cover du: cap 1-1, MISSING (chua implement), EXTRA (viet moi)
     row = _write_method_source(
@@ -273,6 +334,10 @@ def export_excel(result, out_path: str):
         info_rows.append(("AI danh gia (Claude API — lop danh gia doc lap, khong anh huong diem C1-C5)",
                           f"PASS: {ai[AI_PASS]}  WARNING: {ai[AI_WARNING]}  "
                           f"Chua danh gia: {ai['not_run']}"))
+        info_rows.append(("Cot 'AI de xuat giai phap' (sheet Detail — dot 12)",
+                          "Tom tat huong sua cho dong AI cham WARNING; giai thich chi tiet "
+                          "+ code de xuat (highlight vang, dong sua danh dau '// FIX:') "
+                          "nam trong sheet mo ta Mxxx cua tung dong"))
     info_rows.append(("Cot 'Status DEV danh gia' (sheet Detail)",
                       "Nguoi review tu cham bang dropdown (PASS/WARNING/FAIL/MISSING/EXTRA) "
                       "— tool va AI khong ghi vao cot nay"))
@@ -316,8 +381,9 @@ def export_excel(result, out_path: str):
     headers = ["No", "Method", "VB File", "C# File", "VB Signature", "C# Signature",
                "C1 Ton tai", "C2 Tham so", "C3 Kieu tra ve", "C4 Cau truc",
                "C5 Logic", "Similarity", "Score", "Status", "Notes",
-               "Nội dung AI đánh giá", "Status AI đánh giá", "Status DEV đánh giá"]
-    widths = [5, 26, 24, 30, 45, 45, 10, 10, 12, 10, 10, 10, 8, 11, 60, 60, 24, 20]
+               "Nội dung AI đánh giá", "Status AI đánh giá",
+               "AI đề xuất giải pháp", "Status DEV đánh giá"]
+    widths = [5, 26, 24, 30, 45, 45, 10, 10, 12, 10, 10, 10, 8, 11, 60, 60, 24, 55, 20]
     _write_header(ws, 1, headers, widths)
     ws.freeze_panes = "C2"
 
@@ -332,6 +398,13 @@ def export_excel(result, out_path: str):
         fill, font = _status_fill(comp.status)
         # Dot 6: 2 cot AI — chua chay/loi -> "AI chua thuc hien danh gia"
         ai_status = comp.ai_status if comp.ai_status in (AI_PASS, AI_WARNING) else AI_NOT_RUN
+        # Dot 12: cot "AI de xuat giai phap" — CHI tom tat (overview); giai thich
+        # chi tiet + code de xuat nam trong sheet mo ta Mxxx cua dong nay
+        ai_sugg = comp.ai_suggestion
+        if ai_sugg and method_sheets_on and (comp.ai_suggestion_detail
+                                             or comp.ai_suggestion_code):
+            ai_sugg += (f"\n(Giai thich chi tiet + code de xuat: "
+                        f"sheet {method_sheet_name(i)})")
         values = [
             i, comp.name,
             comp.vb.file if comp.vb else "-",
@@ -343,13 +416,13 @@ def export_excel(result, out_path: str):
             comp.similarity if comp.vb and comp.cs else "-",
             comp.score if comp.vb and comp.cs else "-",
             comp.status, comp.note_text,
-            comp.ai_comment, ai_status,
+            comp.ai_comment, ai_status, ai_sugg,
         ]
         for col, val in enumerate(values, start=1):
             cell = ws.cell(row=r, column=col, value=val)
             cell.border = _BORDER
             cell.alignment = Alignment(vertical="top",
-                                       wrap_text=(col in (5, 6, 15, 16)))
+                                       wrap_text=(col in (5, 6, 15, 16, 18)))
         if method_sheets_on:
             # Dot 9: o ten method la hyperlink nhay sang sheet mo ta Mxxx
             name_cell = ws.cell(row=r, column=2)
@@ -362,13 +435,16 @@ def export_excel(result, out_path: str):
         ai_cell = ws.cell(row=r, column=17)
         ai_cell.fill = PatternFill("solid", fgColor=ai_bg)
         ai_cell.font = Font(color=ai_fg, bold=(ai_status != AI_NOT_RUN))
-        ws.cell(row=r, column=18).border = _BORDER  # o DEV de trong cho reviewer chon
+        if ai_sugg:
+            # o co de xuat -> nen vang nhat de dap vao mat nguoi review
+            ws.cell(row=r, column=18).fill = _SUGGEST_OVERVIEW_FILL
+        ws.cell(row=r, column=19).border = _BORDER  # o DEV de trong cho reviewer chon
 
     last_row = len(result.comparisons) + 1
-    ws.auto_filter.ref = f"A1:R{last_row}"
+    ws.auto_filter.ref = f"A1:S{last_row}"
 
-    # Dot 7: cot R "Status DEV danh gia" — dropdown cho nguoi review tu cham,
-    # gia tri cung bo trang thai voi cot Status cua tool
+    # Dot 7 (dot 12 doi cot R -> S): cot "Status DEV danh gia" — dropdown cho
+    # nguoi review tu cham, gia tri cung bo trang thai voi cot Status cua tool
     if result.comparisons:
         dev_statuses = [STATUS_PASS, STATUS_WARNING, STATUS_FAIL,
                         STATUS_MISSING, STATUS_EXTRA]
@@ -377,7 +453,7 @@ def export_excel(result, out_path: str):
             errorTitle="Gia tri khong hop le",
             error="Chon mot trong: " + ", ".join(dev_statuses))
         ws.add_data_validation(dv)
-        dev_range = f"R2:R{last_row}"
+        dev_range = f"S2:S{last_row}"
         dv.add(dev_range)
         # To mau o theo gia tri reviewer chon (conditional formatting)
         for status in dev_statuses:

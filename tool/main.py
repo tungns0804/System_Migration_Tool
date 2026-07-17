@@ -293,6 +293,11 @@ class MigrationCheckerApp:
         if comp.ai_status:
             lines.append(f"AI đánh giá [{comp.ai_status}]:")
             lines.append(f"  {comp.ai_comment or '(không có nội dung)'}")
+        if comp.ai_suggestion:
+            lines.append(f"AI đề xuất giải pháp: {comp.ai_suggestion}")
+            if comp.ai_suggestion_detail or comp.ai_suggestion_code:
+                lines.append("  (Giải thích chi tiết + code đề xuất: xem sheet mô tả "
+                             "của method này trong báo cáo Excel)")
         self._set_text(self.detail_text, "\n".join(lines))
         self._set_text(self.code_vb_text,
                        f"{comp.vb.signature}\n{comp.vb.body}" if comp.vb else "(không có)")

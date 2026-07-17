@@ -152,7 +152,7 @@ class TestReview(unittest.TestCase):
         k1 = cache_key(comp, "claude-sonnet-5")
         k2 = cache_key(comp, "model-khac")
         self.assertNotEqual(k1, k2)
-        self.assertIn(PROMPT_VERSION, "v1")  # doi prompt phai tang version
+        self.assertEqual(PROMPT_VERSION, "v2")  # doi prompt phai tang version
 
     def test_loi_le_te_khong_chan_method_sau(self):
         cache = _tmp_cache()
@@ -270,6 +270,201 @@ class TestReview(unittest.TestCase):
         self.assertIn("C5: ghi chu tool", payload)
 
 
+def _dict_reply(status="WARNING", **overrides):
+    """Ket qua call_fn kieu moi (dot 12) — dict day du 5 truong."""
+    data = {
+        "status": status,
+        "comment": "cần review chỗ làm tròn",
+        "suggestion_overview": "Đổi (int) sang Math.Round để giữ banker's rounding.",
+        "suggestion_detail": "1. CInt của VB làm tròn banker's rounding.\n"
+                             "2. Sửa dòng return dùng Math.Round.",
+        "suggestion_code": "int GetPrice()\n{\n"
+                           "    return (int)Math.Round(x, MidpointRounding.ToEven); "
+                           "// FIX: giu banker's rounding nhu CInt\n}",
+    }
+    data.update(overrides)
+    return data
+
+
+class TestSuggestion(unittest.TestCase):
+    """Dot 12: AI de xuat giai phap cho cho khong PASS."""
+
+    def test_warning_gan_du_3_truong(self):
+        cache = _tmp_cache()
+        result = _make_result(cache)
+        stats = review_result(result, _cfg(cache), call_fn=lambda p: _dict_reply())
+        self.assertEqual(stats["reviewed"], 3)
+        comp = result.comparisons[0]
+        self.assertEqual(comp.ai_status, AI_WARNING)
+        self.assertIn("Math.Round", comp.ai_suggestion)
+        self.assertIn("1.", comp.ai_suggestion_detail)
+        self.assertIn("// FIX", comp.ai_suggestion_code)
+        Path(cache).unlink()
+
+    def test_pass_ep_suggestion_ve_rong(self):
+        """Model tra PASS nhung van dinh kem suggestion -> phai bi xoa sach."""
+        cache = _tmp_cache()
+        result = _make_result(cache)
+        review_result(result, _cfg(cache), call_fn=lambda p: _dict_reply(status="PASS"))
+        for comp in result.comparisons:
+            self.assertEqual(comp.ai_status, AI_PASS)
+            self.assertEqual(comp.ai_suggestion, "")
+            self.assertEqual(comp.ai_suggestion_detail, "")
+            self.assertEqual(comp.ai_suggestion_code, "")
+        Path(cache).unlink()
+
+    def test_call_fn_tuple_cu_van_chay(self):
+        """Tuong thich nguoc: call_fn tra (status, comment) -> suggestion rong."""
+        cache = _tmp_cache()
+        result = _make_result(cache)
+        stats = review_result(result, _cfg(cache), call_fn=lambda p: ("WARNING", "x"))
+        self.assertEqual(stats["reviewed"], 3)
+        comp = result.comparisons[0]
+        self.assertEqual(comp.ai_status, AI_WARNING)
+        self.assertEqual(comp.ai_comment, "x")
+        self.assertEqual(comp.ai_suggestion, "")
+        self.assertEqual(comp.ai_suggestion_code, "")
+        Path(cache).unlink()
+
+    def test_cache_giu_suggestion(self):
+        cache = _tmp_cache()
+        cfg = _cfg(cache)
+        review_result(_make_result(cache), cfg, call_fn=lambda p: _dict_reply())
+        result2 = _make_result(cache)
+        stats = review_result(result2, cfg,
+                              call_fn=lambda p: self.fail("phai lay tu cache"))
+        self.assertEqual(stats["cached"], 3)
+        comp = result2.comparisons[0]
+        self.assertIn("Math.Round", comp.ai_suggestion)
+        self.assertIn("banker", comp.ai_suggestion_detail)
+        self.assertIn("// FIX", comp.ai_suggestion_code)
+        Path(cache).unlink()
+
+    def test_bo_code_fence_markdown(self):
+        """Phong thu: model boc code trong ``` du prompt cam -> go bo."""
+        from core.llm_reviewer import _strip_code_fence
+        fenced = "```csharp\nint A() { return 1; } // FIX: x\n```"
+        self.assertEqual(_strip_code_fence(fenced),
+                         "int A() { return 1; } // FIX: x")
+        self.assertEqual(_strip_code_fence("int B();"), "int B();")
+
+    def test_json_co_truong_suggestion(self):
+        cache = _tmp_cache()
+        result = _make_result(cache)
+        review_result(result, _cfg(cache), call_fn=lambda p: _dict_reply())
+        m = result_to_dict(result)["methods"][0]
+        self.assertIn("Math.Round", m["ai_suggestion"])
+        self.assertIn("banker", m["ai_suggestion_detail"])
+        self.assertIn("// FIX", m["ai_suggestion_code"])
+        Path(cache).unlink()
+
+    def test_json_suggestion_null_khi_chua_chay(self):
+        result = _make_result("")
+        for m in result_to_dict(result)["methods"]:
+            self.assertIsNone(m["ai_suggestion"])
+            self.assertIsNone(m["ai_suggestion_detail"])
+            self.assertIsNone(m["ai_suggestion_code"])
+
+
+class TestExcelSuggestion(unittest.TestCase):
+    """Dot 12: cot 'AI de xuat giai phap' (Detail chi co overview) + muc
+    de xuat highlight trong sheet mo ta Mxxx."""
+
+    @staticmethod
+    def _sheet_text(ws):
+        return "\n".join(str(c.value) for row in ws.iter_rows() for c in row
+                         if c.value is not None)
+
+    def _export(self, result):
+        out = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
+        out.close()
+        export_excel(result, out.name)
+        return out.name
+
+    def test_cot_overview_va_sheet_chi_tiet(self):
+        from openpyxl import load_workbook
+        cache = _tmp_cache()
+        result = _make_result(cache)
+        review_result(result, _cfg(cache), call_fn=lambda p: _dict_reply())
+        path = self._export(result)
+        wb = load_workbook(path)
+
+        # Detail: cot R (18) ngay ben phai 'Status AI danh gia' — CHI overview
+        ws = wb["Detail"]
+        self.assertEqual(ws.cell(row=1, column=18).value, "AI đề xuất giải pháp")
+        sugg = ws.cell(row=2, column=18).value
+        self.assertIn("Math.Round", sugg)         # tom tat huong sua
+        self.assertIn("sheet M001", sugg)         # chi dan sang sheet chi tiet
+        self.assertNotIn("// FIX", sugg)          # khong dan code vao Detail
+        # o co de xuat duoc to nen vang de nhan biet
+        self.assertTrue(str(ws.cell(row=2, column=18).fill.fgColor.rgb).endswith("FFF2CC"))
+
+        # Sheet Mxxx: du tom tat + giai thich chi tiet + code de xuat
+        m1 = wb["M001"]
+        text = self._sheet_text(m1)
+        self.assertIn("AI DE XUAT GIAI PHAP", text)
+        self.assertIn("Tom tat huong sua", text)
+        self.assertIn("Giai thich chi tiet", text)
+        self.assertIn("banker's rounding", text)
+        self.assertIn("Code de xuat", text)
+        self.assertIn("Math.Round", text)
+
+        # dong code AI sua ("// FIX") highlight dam + bold; dong code thuong nen vang nhat
+        cells = [c for row in m1.iter_rows() for c in row
+                 if isinstance(c.value, str)]
+        fix_cell = next(c for c in cells if "// FIX" in c.value)
+        self.assertTrue(str(fix_cell.fill.fgColor.rgb).endswith("FFE08A"))
+        self.assertTrue(fix_cell.font.bold)
+        normal_code = next(c for c in cells if c.value.strip() == "int GetPrice()")
+        self.assertTrue(str(normal_code.fill.fgColor.rgb).endswith("FFF2CC"))
+        Path(path).unlink()
+        Path(cache).unlink()
+
+    def test_pass_khong_co_muc_de_xuat(self):
+        from openpyxl import load_workbook
+        cache = _tmp_cache()
+        result = _make_result(cache)
+        review_result(result, _cfg(cache), call_fn=lambda p: _dict_reply(status="PASS"))
+        path = self._export(result)
+        wb = load_workbook(path)
+        self.assertIsNone(wb["Detail"].cell(row=2, column=18).value)
+        self.assertNotIn("AI DE XUAT GIAI PHAP", self._sheet_text(wb["M001"]))
+        Path(path).unlink()
+        Path(cache).unlink()
+
+    def test_warning_khong_code_van_co_giai_thich(self):
+        """AI de xuat khong kem code (chi can xac nhan tay) -> van hien giai thich."""
+        from openpyxl import load_workbook
+        cache = _tmp_cache()
+        result = _make_result(cache)
+        review_result(result, _cfg(cache),
+                      call_fn=lambda p: _dict_reply(suggestion_code=""))
+        path = self._export(result)
+        text = self._sheet_text(load_workbook(path)["M001"])
+        self.assertIn("AI DE XUAT GIAI PHAP", text)
+        self.assertIn("AI khong de xuat code", text)
+        Path(path).unlink()
+        Path(cache).unlink()
+
+    def test_tat_method_sheets_khong_tro_sheet(self):
+        """method_sheets=false -> o overview khong duoc tro den sheet Mxxx."""
+        from openpyxl import load_workbook
+        cache = _tmp_cache()
+        result = _make_result(cache)
+        review_result(result, _cfg(cache), call_fn=lambda p: _dict_reply())
+        set_config(Config({"excel": {"method_sheets": False}}))
+        try:
+            path = self._export(result)
+        finally:
+            set_config(Config())
+        ws = load_workbook(path)["Detail"]
+        sugg = ws.cell(row=2, column=18).value
+        self.assertIn("Math.Round", sugg)
+        self.assertNotIn("sheet M001", sugg)
+        Path(path).unlink()
+        Path(cache).unlink()
+
+
 class TestProvider(unittest.TestCase):
     """Dot 8: nhan dien provider theo key + model thuc dung."""
 
@@ -368,10 +563,12 @@ class TestGoogleCaller(unittest.TestCase):
 
     def test_parse_response_ok(self):
         data = {"candidates": [{"content": {"parts": [
-            {"text": '{"status": "WARNING", "comment": "cần xem lại làm tròn"}'}]}}]}
-        status, comment = _parse_google_response(data)
-        self.assertEqual(status, "WARNING")
-        self.assertEqual(comment, "cần xem lại làm tròn")
+            {"text": '{"status": "WARNING", "comment": "cần xem lại làm tròn", '
+                     '"suggestion_overview": "Dùng Math.Round."}'}]}}]}
+        obj = _parse_google_response(data)  # dot 12: tra dict day du
+        self.assertEqual(obj["status"], "WARNING")
+        self.assertEqual(obj["comment"], "cần xem lại làm tròn")
+        self.assertEqual(obj["suggestion_overview"], "Dùng Math.Round.")
 
     def test_parse_response_loi_va_block(self):
         with self.assertRaises(RuntimeError):
@@ -404,27 +601,27 @@ class TestExcel(unittest.TestCase):
         self.assertEqual(ws.cell(row=2, column=17).value, AI_WARNING)
         # dong chua chay AI -> fallback "AI chua thuc hien danh gia"
         self.assertEqual(ws.cell(row=4, column=17).value, AI_NOT_RUN)
-        self.assertEqual(ws.auto_filter.ref, "A1:R4")
+        self.assertEqual(ws.auto_filter.ref, "A1:S4")
         Path(out.name).unlink()
 
     def test_cot_dev_dropdown(self):
-        """Dot 7: cot R 'Status DEV danh gia' — dropdown 5 status, o de trong."""
+        """Dot 7 (dot 12 doi R->S): cot 'Status DEV danh gia' — dropdown 5 status, o de trong."""
         from openpyxl import load_workbook
         result = _make_result("")
         out = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
         out.close()
         export_excel(result, out.name)
         ws = load_workbook(out.name)["Detail"]
-        self.assertEqual(ws.cell(row=1, column=18).value, "Status DEV đánh giá")
+        self.assertEqual(ws.cell(row=1, column=19).value, "Status DEV đánh giá")
         for r in range(2, 5):
-            self.assertIsNone(ws.cell(row=r, column=18).value)  # de trong cho DEV
+            self.assertIsNone(ws.cell(row=r, column=19).value)  # de trong cho DEV
         dvs = list(ws.data_validations.dataValidation)
         self.assertEqual(len(dvs), 1)
         self.assertEqual(dvs[0].type, "list")
         self.assertEqual(dvs[0].formula1, '"PASS,WARNING,FAIL,MISSING,EXTRA"')
-        self.assertIn("R2:R4", str(dvs[0].sqref))
+        self.assertIn("S2:S4", str(dvs[0].sqref))
         # co conditional formatting to mau theo 5 status
-        self.assertTrue(any("R2:R4" in str(rng) for rng in ws.conditional_formatting))
+        self.assertTrue(any("S2:S4" in str(rng) for rng in ws.conditional_formatting))
         Path(out.name).unlink()
 
     def test_excel_khi_llm_tat_van_co_cot_fallback(self):

@@ -361,7 +361,37 @@ trước đợt này tool không thể tự nối vì không trùng tên.
 5. Bảng kỳ vọng mới: không map 54 dòng PASS8/W8/F4/M10/E24 (kiến trúc mới 16);
    có map 51 dòng PASS9/W10/F4/M7/E21, rule-hits 17. Suite 111 test.
 
-## 18. Giới hạn đã biết (sau đợt 11)
+## 18. Cập nhật đợt 12 (2026-07-17 — AI đề xuất giải pháp cho chỗ không PASS)
+
+Mở rộng gate AI (đợt 6/8): với dòng AI chấm **WARNING**, AI phải **đề xuất giải
+pháp sửa** ở 3 mức chi tiết (PASS thì cả 3 để rỗng):
+
+1. **Schema output mở rộng** (`PROMPT_VERSION` v1 → v2, cache cũ tự vô hiệu):
+   thêm 3 trường bắt buộc `suggestion_overview` (tối đa 2 câu, tóm tắt hướng sửa),
+   `suggestion_detail` (nguyên nhân gốc + rủi ro nghiệp vụ + các bước sửa đánh số),
+   `suggestion_code` (method C# hoàn chỉnh sau khi sửa — sửa tối thiểu, giữ kiến
+   trúc CQRS/Result/async, **mọi dòng thêm/sửa kết thúc bằng `// FIX: <lý do>`**;
+   MISSING → viết bản convert đề xuất; vấn đề không nằm ở code → để rỗng).
+   Áp cho cả 2 provider (Anthropic structured outputs + Gemini responseSchema);
+   `call_fn` kiểu cũ trả tuple `(status, comment)` vẫn chạy (tương thích ngược);
+   phòng thủ gỡ bọc markdown ``` nếu model lỡ thêm; cache lưu đủ 3 trường.
+2. **Model**: `MethodComparison` thêm `ai_suggestion` / `ai_suggestion_detail` /
+   `ai_suggestion_code`; status PASS ép cả 3 về rỗng kể cả khi model trả kèm.
+3. **Excel Detail**: cột mới **"AI đề xuất giải pháp"** (cột R, ngay phải "Status
+   AI đánh giá"; "Status DEV đánh giá" dời R → S, dropdown/conditional formatting
+   theo cột mới) — CHỈ chứa overview + chỉ dẫn "(Giải thích chi tiết + code đề
+   xuất: sheet Mxxx)", ô có đề xuất tô nền vàng nhạt.
+4. **Sheet mô tả Mxxx**: mục mới **"AI DE XUAT GIAI PHAP"** (header nền vàng đậm)
+   đặt trước 2 mục SOURCE: "Tom tat huong sua" + "Giai thich chi tiet" + "Code de
+   xuat" — code nền vàng nhạt, riêng **dòng có `// FIX:` nền vàng đậm + chữ đỏ
+   đậm** để người review thấy ngay chỗ AI sửa; kèm chú thích đối chiếu với SOURCE
+   trước khi áp dụng. AI không đề xuất code → ghi rõ "(AI khong de xuat code...)".
+5. **JSON** thêm `ai_suggestion`/`ai_suggestion_detail`/`ai_suggestion_code`
+   (null khi PASS/chưa chạy — `diff_reports` không đọc nên baseline cũ vẫn dùng
+   được); GUI tab Tổng quan hiện overview + chỉ dẫn xem Excel; guideline xlsx
+   cập nhật. Suite **122 test**; baseline CLI llm-tắt khớp 100% trước/sau đợt.
+
+## 19. Giới hạn đã biết (sau đợt 12)
 
 - Parser dùng regex/heuristic, không phải compiler đầy đủ → method sinh bởi
   generic phức tạp, partial method, code sinh tự động có thể cần review tay.
@@ -374,6 +404,9 @@ trước đợt này tool không thể tự nối vì không trùng tên.
 - Lớp AI (đợt 6) là nhận định của LLM — không tất định (cùng input có thể trả
   khác nhau giữa các lần gọi khi cache miss), chỉ mang tính gợi ý review, không
   thay thế người review và không tham gia quality gate CI.
+- Code AI đề xuất (đợt 12) **chưa được biên dịch/chạy thử** — chỉ là bản nháp
+  để người review đối chiếu; phải review tay (nhất là các dòng `// FIX:`) trước
+  khi chép vào source thật.
 - Method tách khi migrate: mảnh trùng khóa tên tự nối (đợt 10); mảnh tên khác
   hẳn nối được qua **khai báo mapping 1-n** (đợt 11). Giới hạn còn lại: mảnh
   tách **không được khai báo** trong mapping vẫn là EXTRA độc lập — tool không

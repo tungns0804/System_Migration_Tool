@@ -3,8 +3,10 @@
 Lop danh gia THU BA, chay SAU scan_folders() va doc lap hoan toan voi:
   - Lop 1: cham diem C1-C5 (comparator)
   - Lop 2: rule-based check (rules/conversion_rules.json)
-KHONG sua diem/status cua 2 lop tren — chi ghi vao 2 field moi cua
-MethodComparison: ai_status ("PASS" | "WARNING" | AI_NOT_RUN) va ai_comment.
+KHONG sua diem/status cua 2 lop tren — chi ghi vao cac field AI cua
+MethodComparison: ai_status ("PASS" | "WARNING" | AI_NOT_RUN), ai_comment,
+va (dot 12, chi khi WARNING) ai_suggestion / ai_suggestion_detail /
+ai_suggestion_code — AI de xuat giai phap sua.
 
 Ho tro 2 provider (dot 8), tu nhan dien theo dang api_key khi provider="auto":
   - "sk-ant..." -> Anthropic Claude (SDK anthropic, lazy import; tra phi)
@@ -33,7 +35,8 @@ from pathlib import Path
 from .models import AI_NOT_RUN, AI_PASS, AI_WARNING
 
 # Doi prompt thi tang version nay de cache cu tu vo hieu
-PROMPT_VERSION = "v1"
+# v2 (dot 12): them 3 truong suggestion_* — AI de xuat giai phap cho cho khong PASS
+PROMPT_VERSION = "v2"
 
 # Model mac dinh tung provider (dung khi "model" trong config khong hop provider)
 ANTHROPIC_DEFAULT_MODEL = "claude-sonnet-5"
@@ -66,15 +69,46 @@ Những điểm cần soi kỹ (kinh nghiệm bẫy VB -> C#):
 Trả lời bằng JSON đúng schema. Quy ước:
 - status = "PASS"  : bạn nhận định method convert đạt, không thấy rủi ro đáng kể.
 - status = "WARNING": có điểm nghi ngờ/rủi ro/thiếu thông tin cần người review tay.
-- comment: tiếng Việt, ngắn gọn (tối đa ~3 câu), nêu đúng trọng tâm nhận định."""
+- comment: tiếng Việt, ngắn gọn (tối đa ~3 câu), nêu đúng trọng tâm nhận định.
+
+Khi status = "PASS": để cả 3 trường suggestion_overview / suggestion_detail /
+suggestion_code là chuỗi rỗng "".
+
+Khi status = "WARNING": BẮT BUỘC đề xuất giải pháp sửa, điền đủ 3 trường:
+- suggestion_overview: tiếng Việt, TỐI ĐA 2 câu, tóm tắt hướng sửa để đọc nhanh
+  trên bảng tổng hợp (nêu sửa CÁI GÌ và theo hướng NÀO — không dán code vào đây).
+- suggestion_detail: tiếng Việt, giải thích đầy đủ để dev sửa được ngay:
+  (1) Nguyên nhân gốc — chỉ đích danh đoạn code/điều kiện/nhánh nào sai lệch so
+      với bản VB (trích ngắn dòng liên quan nếu cần);
+  (2) Rủi ro nghiệp vụ nếu giữ nguyên (sai số liệu, mất message, nuốt lỗi...);
+  (3) Các bước sửa cụ thể, đánh số 1. 2. 3.
+  Nếu bạn thiếu thông tin để chắc chắn (ví dụ không thấy Validator/Handler liên
+  quan), ghi rõ cần người review kiểm tra tay điều gì, ở đâu.
+- suggestion_code: method C# HOÀN CHỈNH SAU KHI SỬA (đủ chữ ký + toàn bộ body,
+  biên dịch được), là code thuần — KHÔNG bọc markdown ``` hay giải thích lẫn vào.
+  Nguyên tắc:
+  + Sửa TỐI THIỂU trên code C# hiện có; giữ nguyên style, tên biến, kiến trúc
+    CQRS/MediatR/Result pattern/async của hệ thống mới.
+  + MỌI dòng bạn thêm hoặc sửa phải kết thúc bằng comment "// FIX: <lý do ngắn>"
+    để người review nhận ra ngay chỗ thay đổi.
+  + Method MISSING (chưa có bản C#): viết bản convert C# đề xuất hoàn chỉnh theo
+    kiến trúc mới, mỗi phần logic chính kèm "// FIX: convert từ VB".
+  + Method EXTRA (code mới): sửa trực tiếp trên chính code C# đó.
+  + Nếu vấn đề KHÔNG nằm ở code (chỉ cần xác nhận nghiệp vụ/kiểm tra tay), để
+    suggestion_code = "" và nói rõ lý do trong suggestion_detail."""
 
 _OUTPUT_SCHEMA = {
     "type": "object",
     "properties": {
         "status": {"type": "string", "enum": ["PASS", "WARNING"]},
         "comment": {"type": "string"},
+        # Dot 12: de xuat giai phap — rong khi PASS (xem _SYSTEM_PROMPT)
+        "suggestion_overview": {"type": "string"},
+        "suggestion_detail": {"type": "string"},
+        "suggestion_code": {"type": "string"},
     },
-    "required": ["status", "comment"],
+    "required": ["status", "comment",
+                 "suggestion_overview", "suggestion_detail", "suggestion_code"],
     "additionalProperties": False,
 }
 
@@ -201,8 +235,7 @@ def _make_anthropic_caller(cfg, api_key: str):
             messages=[{"role": "user", "content": payload}],
         )
         text = next((b.text for b in response.content if b.type == "text"), "")
-        data = json.loads(text)
-        return data.get("status", ""), data.get("comment", "")
+        return json.loads(text)  # dict day du (status/comment/suggestion_*)
 
     call_fn.auth_error_type = auth_error
     return call_fn
@@ -218,8 +251,13 @@ def _google_request_body(payload: str, model: str, max_tokens: int) -> dict:
             "properties": {
                 "status": {"type": "STRING", "enum": ["PASS", "WARNING"]},
                 "comment": {"type": "STRING"},
+                # Dot 12: de xuat giai phap — rong khi PASS
+                "suggestion_overview": {"type": "STRING"},
+                "suggestion_detail": {"type": "STRING"},
+                "suggestion_code": {"type": "STRING"},
             },
-            "required": ["status", "comment"],
+            "required": ["status", "comment", "suggestion_overview",
+                         "suggestion_detail", "suggestion_code"],
         },
         "maxOutputTokens": max_tokens,
     }
@@ -234,8 +272,8 @@ def _google_request_body(payload: str, model: str, max_tokens: int) -> dict:
     }
 
 
-def _parse_google_response(data: dict):
-    """Trich (status, comment) tu response generateContent."""
+def _parse_google_response(data: dict) -> dict:
+    """Trich dict ket qua (status/comment/suggestion_*) tu response generateContent."""
     if "error" in data:
         raise RuntimeError(data["error"].get("message", str(data["error"])))
     candidates = data.get("candidates") or []
@@ -244,8 +282,7 @@ def _parse_google_response(data: dict):
         raise RuntimeError(f"Gemini khong tra candidate (blockReason={block})")
     parts = (candidates[0].get("content") or {}).get("parts") or []
     text = "".join(p.get("text", "") for p in parts)
-    obj = json.loads(text)
-    return obj.get("status", ""), obj.get("comment", "")
+    return json.loads(text)
 
 
 def _google_retry_delay(detail: str, attempt: int) -> float:
@@ -311,11 +348,47 @@ def make_api_caller(cfg):
 
 # ---------- Review toan bo ket qua scan ----------
 
+def _normalize_reply(reply) -> dict:
+    """Dua ket qua call_fn ve dict chuan.
+
+    call_fn moi (dot 12) tra dict {status, comment, suggestion_*}; van chap nhan
+    dang tuple (status, comment) cu — test/integration cu khong phai sua."""
+    if isinstance(reply, dict):
+        return reply
+    status, comment = reply
+    return {"status": status, "comment": comment}
+
+
+def _apply_suggestions(comp, data: dict):
+    """Gan 3 truong suggestion vao comparison — PASS thi ep ve rong (chi cho
+    khong PASS moi can giai phap)."""
+    if comp.ai_status == AI_PASS:
+        comp.ai_suggestion = comp.ai_suggestion_detail = comp.ai_suggestion_code = ""
+        return
+    comp.ai_suggestion = (data.get("suggestion_overview") or "").strip()
+    comp.ai_suggestion_detail = (data.get("suggestion_detail") or "").strip()
+    comp.ai_suggestion_code = _strip_code_fence(data.get("suggestion_code") or "")
+
+
+def _strip_code_fence(code: str) -> str:
+    """Phong thu: model boc code trong ``` du prompt cam — go bo cho sach."""
+    code = code.strip()
+    if code.startswith("```"):
+        lines = code.splitlines()
+        lines = lines[1:]  # bo dong ```csharp / ```
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        code = "\n".join(lines).strip("\n")
+    return code
+
+
 def review_result(result, cfg, call_fn=None, progress=None) -> dict:
     """Cham AI cho TAT CA comparison trong ScanResult (ke ca MISSING/EXTRA).
 
-    call_fn : (payload_str) -> (status, comment). None -> tao caller that
-              qua Claude API theo config. Test tiem ham gia vao day.
+    call_fn : (payload_str) -> dict {status, comment, suggestion_overview,
+              suggestion_detail, suggestion_code} (hoac tuple (status, comment)
+              kieu cu). None -> tao caller that qua AI API theo config.
+              Test tiem ham gia vao day.
     progress: callback (i, total, cached) de GUI/CLI bao tien do (tuy chon).
 
     Tra ve thong ke: {"reviewed", "cached", "not_run", "error": str|None}.
@@ -356,6 +429,7 @@ def review_result(result, cfg, call_fn=None, progress=None) -> dict:
         if isinstance(hit, dict) and hit.get("status") in (AI_PASS, AI_WARNING):
             comp.ai_status = hit["status"]
             comp.ai_comment = hit.get("comment", "")
+            _apply_suggestions(comp, hit)
             stats["cached"] += 1
             stats["reviewed"] += 1
             if progress:
@@ -363,15 +437,20 @@ def review_result(result, cfg, call_fn=None, progress=None) -> dict:
             continue
 
         try:
-            status, comment = call_fn(build_payload(comp))
-            status = (status or "").strip().upper()
+            data = _normalize_reply(call_fn(build_payload(comp)))
+            status = (data.get("status") or "").strip().upper()
+            comment = (data.get("comment") or "").strip()
             if status not in (AI_PASS, AI_WARNING):
                 # phong thu: model tra ngoai quy uoc -> ep ve WARNING de review tay
                 comment = f"[status model tra ve: '{status}'] {comment}".strip()
                 status = AI_WARNING
             comp.ai_status = status
-            comp.ai_comment = (comment or "").strip()
-            cache[key] = {"status": comp.ai_status, "comment": comp.ai_comment}
+            comp.ai_comment = comment
+            _apply_suggestions(comp, data)
+            cache[key] = {"status": comp.ai_status, "comment": comp.ai_comment,
+                          "suggestion_overview": comp.ai_suggestion,
+                          "suggestion_detail": comp.ai_suggestion_detail,
+                          "suggestion_code": comp.ai_suggestion_code}
             cache_dirty = True
             stats["reviewed"] += 1
         except Exception as e:
